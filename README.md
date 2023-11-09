@@ -42,11 +42,3 @@ To run this project on your local machine, follow these steps:
 ## Contributing
 
 Contributions are welcome! If you have ideas for improvements, bug fixes, or new features, please submit an issue or pull request.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-Feel free to customize this template with more specific details about your project, usage, and guidelines.
