@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Button, TouchableOpacity } from 'react-native'; // Import TouchableOpacity
+import { View, Text, FlatList, StyleSheet, Button, TouchableOpacity, TextInput } from 'react-native';
 import { Table, Row, Rows } from 'react-native-table-component';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
-import CreateNote from './CreateNote';
 
 function NotesList() {
   const [notes, setNotes] = useState([]);
-  const [isCreating, setIsCreating] = useState(false);
+  const [newNoteContent, setNewNoteContent] = useState('');
 
   useEffect(() => {
     async function fetchNotes() {
@@ -24,7 +23,6 @@ function NotesList() {
   const tableData = notes.map((note) => [
     note.id.toString(),
     note.content,
-    // Add a "Delete" button for each note
     <TouchableOpacity
       onPress={() => handleDeleteNote(note.id)}
       style={styles.deleteButton}
@@ -33,8 +31,19 @@ function NotesList() {
     </TouchableOpacity>,
   ]);
 
-  const handleCreateNote = () => {
-    setIsCreating(!isCreating);
+  const handleCreateNote = async () => {
+    try {
+      // Send a request to create a new note with the provided content
+      const response = await axios.post(`${API_BASE_URL}/api/Notes`, { content: newNoteContent });
+      // Handle the response (e.g., show a success message).
+      console.log('Note created:', response.data);
+      // After successful creation, refresh the notes list
+      refreshNotes();
+      // Reset the input.
+      setNewNoteContent('');
+    } catch (error) {
+      console.error('Error creating note:', error);
+    }
   };
 
   const handleDeleteNote = async (noteId) => {
@@ -59,7 +68,15 @@ function NotesList() {
 
   return (
     <View style={{ width: 'auto' }}>
-      <Button title="Create" onPress={handleCreateNote} />
+      <View style={styles.createNoteContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter note content"
+          value={newNoteContent}
+          onChangeText={(text) => setNewNoteContent(text)}
+        />
+        <Button title="Create" onPress={handleCreateNote} />
+      </View>
       <Table borderStyle={{ borderWidth: 2, borderColor: '#c8e1ff' }}>
         <Row
           data={['ID', 'Content', 'Actions']}
@@ -68,7 +85,6 @@ function NotesList() {
         />
         <Rows data={tableData} textStyle={{ margin: 6 }} />
       </Table>
-      {isCreating && <CreateNote onNoteCreated={refreshNotes} />}
     </View>
   );
 }
@@ -81,6 +97,19 @@ const styles = StyleSheet.create({
   },
   deleteButtonText: {
     color: 'white',
+  },
+  createNoteContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  input: {
+    flex: 1,
+    marginRight: 10,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
   },
 });
 
