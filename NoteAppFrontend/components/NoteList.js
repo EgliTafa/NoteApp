@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Button, TouchableOpacity, TextInput } from 'react-native';
 import { Table, Row, Rows } from 'react-native-table-component';
+import NoteListService from '../services/NoteListService';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
@@ -11,8 +12,8 @@ function NotesList() {
   useEffect(() => {
     async function fetchNotes() {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/Notes`);
-        setNotes(response.data);
+        const notesData = await NoteListService.fetchNotes();
+        setNotes(notesData);
       } catch (error) {
         console.error('Error fetching notes:', error);
       }
@@ -33,13 +34,9 @@ function NotesList() {
 
   const handleCreateNote = async () => {
     try {
-      // Send a request to create a new note with the provided content
-      const response = await axios.post(`${API_BASE_URL}/api/Notes`, { content: newNoteContent });
-      // Handle the response (e.g., show a success message).
-      console.log('Note created:', response.data);
-      // After successful creation, refresh the notes list
+      const response = await NoteListService.createNote(newNoteContent);
+      console.log('Note created:', response);
       refreshNotes();
-      // Reset the input.
       setNewNoteContent('');
     } catch (error) {
       console.error('Error creating note:', error);
@@ -48,9 +45,7 @@ function NotesList() {
 
   const handleDeleteNote = async (noteId) => {
     try {
-      // Send a request to delete the note based on the noteId
-      await axios.delete(`${API_BASE_URL}/api/Notes/${noteId}`);
-      // After successful deletion, refresh the notes list
+      await NoteListService.deleteNote(noteId);
       refreshNotes();
     } catch (error) {
       console.error('Error deleting note:', error);
@@ -59,8 +54,8 @@ function NotesList() {
 
   const refreshNotes = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/Notes`);
-      setNotes(response.data);
+      const notesData = await NoteListService.fetchNotes();
+      setNotes(notesData);
     } catch (error) {
       console.error('Error fetching notes:', error);
     }
